@@ -151,6 +151,7 @@ public let HeimdallrErrorNotAuthorized = 2
                     let userInfo = [
                         NSLocalizedDescriptionKey: NSLocalizedString("Could not authorize grant", comment: ""),
                         NSLocalizedFailureReasonErrorKey: String(format: NSLocalizedString("Expected access token, got: %@.", comment: ""), NSString(data: data!, encoding: String.Encoding.utf8.rawValue) ?? "nil"),
+                        OAuthStatusCodeRespondeKey: (response as! HTTPURLResponse).statusCode as Any,
                     ]
 
                     let error = NSError(domain: HeimdallrErrorDomain, code: HeimdallrErrorInvalidData, userInfo: userInfo)
@@ -158,11 +159,19 @@ public let HeimdallrErrorNotAuthorized = 2
                 }
             } else {
                 if let data = data, let error = OAuthError.decode(data: data) {
-                    completion(.failure(error.nsError))
+                    // Create new user info with status code error
+                    var userInfo = [AnyHashable: Any]()
+                    error.nsError.userInfo.forEach({ key, value in
+                        userInfo[key] = value
+                    })
+                    userInfo[OAuthStatusCodeRespondeKey] = (response as! HTTPURLResponse).statusCode as Any
+                    let nserror = NSError(domain: error.nsError.domain, code: error.nsError.code, userInfo: userInfo as? [String : Any])
+                    completion(.failure(nserror))
                 } else {
                     let userInfo = [
                         NSLocalizedDescriptionKey: NSLocalizedString("Could not authorize grant", comment: ""),
                         NSLocalizedFailureReasonErrorKey: String(format: NSLocalizedString("Expected error, got: %@.", comment: ""), NSString(data: data!, encoding: String.Encoding.utf8.rawValue) ?? "nil"),
+                        OAuthStatusCodeRespondeKey: (response as! HTTPURLResponse).statusCode as Any,
                     ]
 
                     let error = NSError(domain: HeimdallrErrorDomain, code: HeimdallrErrorInvalidData, userInfo: userInfo)

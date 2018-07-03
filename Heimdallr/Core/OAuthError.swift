@@ -10,6 +10,7 @@ public let OAuthErrorUnsupportedGrantType = 5
 public let OAuthErrorInvalidScope = 6
 
 public let OAuthURIErrorKey = "OAuthURIErrorKey"
+public let OAuthStatusCodeRespondeKey = "OAuthStatusCodeRespondeKey"
 
 public enum OAuthErrorCode: String {
     case InvalidRequest = "invalid_request"
@@ -51,11 +52,13 @@ public class OAuthError {
     public let code: OAuthErrorCode
     public let description: String?
     public let uri: String?
+    public let responseStatusCode: Int?
 
-    public init(code: OAuthErrorCode, description: String? = nil, uri: String? = nil) {
+    public init(code: OAuthErrorCode, statusCode: Int?, description: String? = nil, uri: String? = nil) {
         self.code = code
         self.description = description
         self.uri = uri
+        self.responseStatusCode = statusCode
     }
 }
 
@@ -70,6 +73,7 @@ public extension OAuthError {
         if let uri = uri {
             userInfo[OAuthURIErrorKey] = uri as AnyObject?
         }
+        userInfo[OAuthStatusCodeRespondeKey] = responseStatusCode as AnyObject?
 
         return NSError(domain: OAuthErrorDomain, code: code.intValue, userInfo: userInfo)
     }
@@ -84,7 +88,7 @@ extension OAuthError {
         let description = json["error_description"] as? String
         let uri = json["error_uri"] as? String
 
-        return OAuthError(code: code, description: description, uri: uri)
+        return OAuthError(code: code, statusCode: nil, description: description, uri: uri)
     }
 
     public class func decode(data: Data) -> OAuthError? {
