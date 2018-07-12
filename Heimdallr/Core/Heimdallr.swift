@@ -224,7 +224,7 @@ public let HeimdallrErrorNotAuthorized = 2
                             return .success(authenticatedRequest)
                             }, ifFailure: { error in
                                 if [HeimdallrErrorDomain, OAuthErrorDomain].contains(error.domain) {
-                                    self.clearAccessToken()
+                                    self.invalidateAccessToken()
                                 }
                                 return .failure(error)
                         }))
