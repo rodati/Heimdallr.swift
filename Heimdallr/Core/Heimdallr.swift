@@ -97,8 +97,8 @@ public let HeimdallrErrorNotAuthorized = 2
     /// - parameter username: The resource owner's username.
     /// - parameter password: The resource owner's password.
     /// - parameter completion: A callback to invoke when the request completed.
-    open func requestAccessToken(username: String, password: String, completion: @escaping (Result<Void, NSError>) -> Void) {
-        requestAccessToken(grant: .resourceOwnerPasswordCredentials(username, password)) { result in
+    open func requestAccessToken(username: String, password: String, contentType: String? = nil, completion: @escaping (Result<Void, NSError>) -> Void) {
+        requestAccessToken(grant: .resourceOwnerPasswordCredentials(username, password), contentType: contentType) { result in
             completion(result.map { _ in return })
         }
     }
@@ -110,8 +110,8 @@ public let HeimdallrErrorNotAuthorized = 2
     /// - parameter grantType: The grant type URI of the extension grant
     /// - parameter parameters: The required parameters for the external grant
     /// - parameter completion: A callback to invoke when the request completed.
-    open func requestAccessToken(grantType: String, parameters: [String: String], completion: @escaping (Result<Void, NSError>) -> Void) {
-        requestAccessToken(grant: .extension(grantType, parameters)) { result in
+    open func requestAccessToken(grantType: String, parameters: [String: String], contentType: String? = nil, completion: @escaping (Result<Void, NSError>) -> Void) {
+        requestAccessToken(grant: .extension(grantType, parameters), contentType: contentType) { result in
             completion(result.map { _ in return })
         }
     }
@@ -124,7 +124,7 @@ public let HeimdallrErrorNotAuthorized = 2
     ///
     /// - parameter grant: The authorization grant (e.g., refresh).
     /// - parameter completion: A callback to invoke when the request completed.
-    private func requestAccessToken(grant: OAuthAuthorizationGrant, completion: @escaping (Result<OAuthAccessToken, NSError>) -> Void) {
+    private func requestAccessToken(grant: OAuthAuthorizationGrant, contentType: String? = nil, completion: @escaping (Result<OAuthAccessToken, NSError>) -> Void) {
         var request = URLRequest(url: tokenURL)
 
         var parameters = grant.parameters
@@ -137,8 +137,16 @@ public let HeimdallrErrorNotAuthorized = 2
         }
 
         request.httpMethod = "POST"
-        request.setValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
-        request.setHTTPBody(parameters: parameters as [String: AnyObject])
+        if contentType != "application/x-www-form-urlencoded" {
+            request.setValue(contentType, forHTTPHeaderField: "Content-Type")
+            if contentType == "application/json" {
+                let jsonData = try? JSONSerialization.data(withJSONObject: parameters)
+                request.httpBody = jsonData
+            }
+        } else {
+            request.setValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
+            request.setHTTPBody(parameters: parameters as [String: AnyObject])
+        }
 
         httpClient.sendRequest(request) { data, response, error in
             if let error = error {
