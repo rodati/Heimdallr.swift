@@ -16,12 +16,17 @@ public let HeimdallrErrorNotAuthorized = 2
     private let credentials: OAuthClientCredentials?
 
     private let accessTokenStore: OAuthAccessTokenStore
+    private var _accessToken: OAuthAccessToken?
     private var accessToken: OAuthAccessToken? {
         get {
-            return accessTokenStore.retrieveAccessToken()
+            if let token = accessTokenStore.retrieveAccessToken() {
+                return token
+            }
+            return _accessToken
         }
         set {
             accessTokenStore.storeAccessToken(newValue)
+            _accessToken = newValue
         }
     }
 
@@ -97,9 +102,9 @@ public let HeimdallrErrorNotAuthorized = 2
     /// - parameter username: The resource owner's username.
     /// - parameter password: The resource owner's password.
     /// - parameter completion: A callback to invoke when the request completed.
-    open func requestAccessToken(username: String, password: String, contentType: String? = nil, completion: @escaping (Result<Void, NSError>) -> Void) {
+    open func requestAccessToken(username: String, password: String, contentType: String? = nil, completion: @escaping (Result<OAuthAccessToken, NSError>) -> Void) {
         requestAccessToken(grant: .resourceOwnerPasswordCredentials(username, password), contentType: contentType) { result in
-            completion(result.map { _ in return })
+            completion(result)
         }
     }
 
@@ -110,9 +115,9 @@ public let HeimdallrErrorNotAuthorized = 2
     /// - parameter grantType: The grant type URI of the extension grant
     /// - parameter parameters: The required parameters for the external grant
     /// - parameter completion: A callback to invoke when the request completed.
-    open func requestAccessToken(grantType: String, parameters: [String: String], contentType: String? = nil, completion: @escaping (Result<Void, NSError>) -> Void) {
+    open func requestAccessToken(grantType: String, parameters: [String: String], contentType: String? = nil, completion: @escaping (Result<OAuthAccessToken, NSError>) -> Void) {
         requestAccessToken(grant: .extension(grantType, parameters), contentType: contentType) { result in
-            completion(result.map { _ in return })
+            completion(result)
         }
     }
 
