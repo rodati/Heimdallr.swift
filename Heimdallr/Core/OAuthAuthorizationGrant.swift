@@ -37,7 +37,7 @@ public enum OAuthAuthorizationGrant {
             ]
         case let .refreshToken(refreshToken):
             return [
-                "grantType": "refreshToken",
+                "grantType": "refresh_token",
                 "refreshToken": refreshToken,
             ]
         case .extension(let grantType, var parameters):
