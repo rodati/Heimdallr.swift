@@ -106,6 +106,7 @@ internal struct Keychain {
         keychain["token_type"] = accessToken?.tokenType
         keychain["expires_at"] = accessToken?.expiresAt?.timeIntervalSince1970.description
         keychain["refresh_token"] = accessToken?.refreshToken
+        keychain["sub"] = accessToken?.sub
     }
 
     public func retrieveAccessToken() -> OAuthAccessToken? {
@@ -117,9 +118,10 @@ internal struct Keychain {
                 Date(timeIntervalSince1970: expiresAtInSeconds)
             }
         }
+        let sub = keychain["sub"]
 
         if let accessToken = accessToken, let tokenType = tokenType {
-            return OAuthAccessToken(accessToken: accessToken, tokenType: tokenType, expiresAt: expiresAt, refreshToken: refreshToken)
+            return OAuthAccessToken(accessToken: accessToken, tokenType: tokenType, expiresAt: expiresAt, refreshToken: refreshToken, sub: sub)
         }
 
         return nil

@@ -225,8 +225,8 @@ public let HeimdallrErrorNotAuthorized = 2
     private func authenticateRequestConcurrently(_ request: URLRequest, completion: @escaping (Result<URLRequest, NSError>) -> Void) {
         if let accessToken = accessToken {
             if let expiration = accessToken.expiresAt, expiration < Date() {
-                if let refreshToken = accessToken.refreshToken {
-                    requestAccessToken(grant: .refreshToken(refreshToken)) { result in
+                if let refreshToken = accessToken.refreshToken, let sub = accessToken.sub {
+                    requestAccessToken(grant: .refreshToken(refreshToken, sub), contentType: "application/json") { result in
                         completion(result.analysis(ifSuccess: { accessToken in
                             let authenticatedRequest = self.authenticateRequest(request, accessToken: accessToken)
                             return .success(authenticatedRequest)

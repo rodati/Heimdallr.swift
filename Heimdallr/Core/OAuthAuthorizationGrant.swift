@@ -12,7 +12,7 @@ public enum OAuthAuthorizationGrant {
     /// A refresh token grant.
     ///
     /// - parameter refreshToken: The refresh token.
-    case refreshToken(String)
+    case refreshToken(String, String)
 
     /// An extension grant
     ///
@@ -35,10 +35,11 @@ public enum OAuthAuthorizationGrant {
                 "username": username,
                 "password": password,
             ]
-        case let .refreshToken(refreshToken):
+        case let .refreshToken(refreshToken, sub):
             return [
                 "grantType": "refresh_token",
                 "refreshToken": refreshToken,
+                "sub": sub,
             ]
         case .extension(let grantType, var parameters):
             parameters["grantType"] = grantType

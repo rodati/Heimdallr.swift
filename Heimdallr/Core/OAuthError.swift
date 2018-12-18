@@ -58,7 +58,7 @@ public class OAuthError {
         self.code = code
         self.description = description
         self.uri = uri
-        self.responseStatusCode = statusCode
+        responseStatusCode = statusCode
     }
 }
 
