@@ -40,6 +40,7 @@ public enum OAuthAuthorizationGrant {
                 "grantType": "refresh_token",
                 "refreshToken": refreshToken,
                 "sub": sub,
+                "scope": "web"
             ]
         case .extension(let grantType, var parameters):
             parameters["grantType"] = grantType
